@@ -20,7 +20,7 @@ function App() {
 
   //Add user user
   function addUser() {
-    const name = newName.trim()   //trim is used to remove the space when enter employee details
+    const name = newName.trim() //trim is used to remove the space when enter employee details
     const email = newEmail.trim()
     const website = newWebsite.trim()
     const company = newCompany.trim()
@@ -54,7 +54,44 @@ function App() {
     }
   }
 
-  function onChangeHandler() {}
+  //Change input fields values
+  function onChangeHandler(id, key, value) {
+    setUsers((users) => {
+      return users.map((user) => {
+        return user.id === id ? { ...user, [key]: value } : user
+      })
+    })
+  }
+
+  //Update user
+  function updateUser(id) {
+    const user = users.find((user) => user.id === id)
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(user),
+      headers: {
+        'content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        toast.success('User update successfully!')
+      })
+  }
+
+  //Delete User
+  function deleteUser(id) {
+    fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+      method: 'DELETE',
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUsers((users) => {
+          return users.filter((user) => user.id !== id)
+        })
+        toast.success('User delete successfully!')
+      })
+  }
 
   return (
     <div className='App'>
@@ -109,10 +146,16 @@ function App() {
                 <input value={user.address.city} className='px-2 py-1' />
               </td> */}
               <td className='border border-slate-600 px-4 py-2'>
-                <button className=' bg-blue-500 text-white px-3 py-1 m-1 rounded hover:bg-blue-800'>
+                <button
+                  className=' bg-blue-500 text-white px-3 py-1 m-1 rounded hover:bg-blue-800'
+                  onClick={() => updateUser(user.id)}
+                >
                   Update
                 </button>
-                <button className=' bg-red-500 text-white px-3 py-1 rounded hover:bg-red-800'>
+                <button
+                  className=' bg-red-500 text-white px-3 py-1 rounded hover:bg-red-800'
+                  onClick={() => deleteUser(user.id)}
+                >
                   Delete
                 </button>
               </td>
@@ -169,7 +212,7 @@ function App() {
           </tr>
         </tfoot>
       </table>
-      <ToastContainer position='top-center' autoClose={3000} />
+      <ToastContainer position='top-center' autoClose={3000} theme='colored' />
     </div>
   )
 }
